@@ -1,4 +1,4 @@
-//Group Assignment
+//Group Members
 /*
 - BYUKUSENGE NADINE FIONA    221001529
 - NIYOMUKESHA FORELENCE      221001588
@@ -6,7 +6,12 @@
 - NYIRAMBARUSHIMANA CONSTANTINE 221004566
 */
 
+
+
 package assignment.datastructure;
+
+
+
 
 public class MyLinkedList {
 
@@ -15,13 +20,17 @@ public class MyLinkedList {
         int data;
         Node next;
 
-        public Node() {
+        Node() {
             next = null;
         }
 
-        public Node(int a) {
-            data = a;
+        Node(int a) {
+            this.data = a;
             next = null;
+        }
+
+        public int value() {
+            return data;
         }
     }
     Node head;
@@ -35,98 +44,157 @@ public class MyLinkedList {
     }
 
     public MyLinkedList(int a) {
-        Node newNode = new Node(a);
-        head = newNode;
-        tail = newNode;
+        head = tail = new Node(a);
         size = 1;
+    }
+
+    public void insertAtFront(int a) {
+        Node newNode = new Node(a);
+        if (head != null) {
+
+            newNode.next = head;
+            head = newNode;
+        } else {
+            head = newNode;
+            tail = newNode;
+        }
+        ++size;
+
+    }
+
+    public void insertAtBack(int a) {
+        Node newNode = new Node(a);
+        tail.next = newNode;
+        tail = newNode;
+        ++size;
     }
 
     public int size() {
         return size;
     }
 
+    @Override
+    public String toString() {
+        if (isEmpty()) {
+            return "[ ]";
+        } else {
+            Node current = head;
+            String s = "[";
+            while (current != null) {
+                s += current.data;
+                if (current.next == null) {
+                    s += "]";
+                } else {
+                    s += ",";
+                }
+                current = current.next;
+            }
+            return s;
+        }
+
+    }
+
     public boolean isEmpty() {
-        return size() == 0;
-
+        return head == null;
     }
 
-    public void insertAtfront(int a) {
-        Node newNode = new Node(a);
-        if (isEmpty()) {
-            head = newNode;
-            tail = newNode;
-
+    public void reverse() {
+        if (this.size() <= 1)// empty or we have one node!
+        {
+            return;
         } else {
-            newNode.next = head;
-            head = newNode;
 
+            Node previous = this.head;
+            Node forward = previous.next;
+            Node other;
+            while (forward.next != null) {
+                other = forward.next;
+                forward.next = previous;
+                previous = forward;
+                forward = other;
+            }
+            forward.next = previous;
+            Node temp = head;
+            head = tail;
+            tail = temp;
+            tail.next = null;
         }
-        size++;
     }
 
-    public void insertAtBack(int a) {
-        Node newNode = new Node(a);
-        if (isEmpty()) {
-            head = newNode;
-            tail = newNode;
+    public void insertAt(int a, int i) {
+        if (i < 0 || i > this.size()) {
+            return;
+        } else if (i == 0) {
+            insertAtFront(a);
+        } else if (i == size()) {
+            insertAtBack(a);
         } else {
-            tail.next = newNode;
-            tail = newNode;
+            Node current = head;
+            Node forward = head.next;
+            for (int j = 1; j < i; ++j) {
+                current = current.next;
+                forward = forward.next;
+            }
+            Node newNode = new Node(a);
+            current.next = newNode;
+            newNode.next = forward;
         }
-        size++;
-
     }
 
-    public void print() {
-        Node current = head;
-        while (current != null) {
-            System.out.print(current.data + ", ");
-            current = current.next;
+    public boolean equals(MyLinkedList l) {
+        if (this.size() != l.size()) {
+            return false;
         }
-        System.out.println(' ');
-
+        Node h1 = this.head;
+        Node h2 = l.head;
+        while (h1 != null) {
+            if (h1.data != h2.data) {
+                return false;
+            }
+            h1 = h1.next;
+            h2 = h2.next;
+        }
+        return true;
     }
 
-    public MyLinkedList concat(MyLinkedList anotherList) {
-        MyLinkedList result = new MyLinkedList();
-        this.tail.next = anotherList.head;
-        result.tail = anotherList.tail;
-        result.tail.next=null;
-        return result;
+    public MyLinkedList concatenate(MyLinkedList list) {
+        this.tail.next = list.head;
+        this.tail = list.tail;
+        this.tail.next = null;
+        return this;
     }
 
-    public static boolean isSorted(MyLinkedList list) {
-        boolean result = false;
+    public static boolean isSorted(MyLinkedList list) //helper method to check if a linked list is sorted
+    {//returns true if the Linked List is sorted in ascending order.
         Node currentNode = list.head;
         while (currentNode.next != null) {
             if (currentNode.data > currentNode.next.data) {
-                return result;
+                return false;
             }
             currentNode = currentNode.next;
         }
-        result = true;
-        return result;
+
+        return true;
     }
 
-    public static MyLinkedList mergeLinkedList(MyLinkedList listOne, MyLinkedList listTwo) {
-        MyLinkedList result = new MyLinkedList();
-        if (!isSorted(listOne)) {
+    public MyLinkedList merge(MyLinkedList list)//Merges two sorted lists into a sorted one
+    {
+        if (!isSorted(this)) {
             return null;
         }
-        if (!isSorted(listTwo)) {
+        if (!isSorted(list)) {
             return null;
         }
         Node currentOne, currentTwo, resultNode;
-        if (listOne.head.data < listTwo.head.data) {
-            result.head = listOne.head;
-            currentOne = listOne.head.next;
-            currentTwo = listTwo.head;
+        if (this.head.data < list.head.data) {
+            currentOne = this.head.next;
+            currentTwo = list.head;
         } else {
-            result.head = listTwo.head;
-            currentTwo = listTwo.head.next;
-            currentOne = listOne.head;
+            this.head = list.head;
+            currentTwo = list.head.next;
+            currentOne = this.head;
         }
-        resultNode = result.head;
+        resultNode = this.head;
         while (currentOne != null || currentTwo != null) {
           
             if (currentOne == null) {
@@ -151,43 +219,37 @@ public class MyLinkedList {
             
         }
         
-        result.tail=resultNode;
+        this.tail=resultNode;
         resultNode.next=null;
-        return result;
-
+        return this;
     }
-
     public static void main(String args[]) {
         MyLinkedList list1 = new MyLinkedList();
-        list1.insertAtfront(1);
+        list1.insertAtFront(1);
         list1.insertAtBack(9);
         list1.insertAtBack(10);
         list1.insertAtBack(19);
-        list1.insertAtfront(-1);
+        list1.insertAtFront(-1);
         
         System.out.println("List one sorted:" + isSorted(list1));
-        list1.print();
+        System.out.println(list1.toString());
         MyLinkedList list2 = new MyLinkedList();
-        list2.insertAtfront(5);
+        list2.insertAtFront(5);
         list2.insertAtBack(6);
         list2.insertAtBack(7);
         list2.insertAtBack(11);
         MyLinkedList list3 = new MyLinkedList();
-        list3.insertAtfront(5);
+        list3.insertAtFront(5);
         list3.insertAtBack(6);
         list3.insertAtBack(7);
         list3.insertAtBack(11);
-        
-        
         System.out.println("List two sorted:" + isSorted(list2));
-        list2.print();
-        
-        MyLinkedList listMerged=mergeLinkedList(list1, list2);
+        System.out.println(list2.toString());
         System.out.println("MergedList");
-        listMerged.print();
-        System.out.println("Concatened list.");
-        listMerged.concat(list3);
-        listMerged.print();
+        System.out.println(list1.merge(list2).toString());
+        System.out.println("Concatened list to merged list "+list3.toString());
+        System.out.println(list1.concatenate(list3));
+        
 
     }
 }
